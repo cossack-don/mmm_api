@@ -6,7 +6,9 @@ export class CheckHealthController {
   @Header('Cache-Control', 'no-cache, no-store, must-revalidate')
   @Header('Pragma', 'no-cache')
   @Header('Expires', '0')
-  check() {
+  async check() {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
