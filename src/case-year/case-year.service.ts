@@ -15,6 +15,7 @@ export class CaseYearService {
 
   async findAllByProject(projectId: number): Promise<CaseYearEntity[]> {
     // Проверяем существует ли проект
+    // await new Promise((resolve) => setTimeout(resolve, 4000));
     const project = await this.projectRepository.findOne({
       where: { id: projectId, isDeleted: false },
     });
