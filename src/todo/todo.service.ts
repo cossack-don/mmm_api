@@ -1,13 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Todo } from './todo.entity';
+import { TodoEntity } from './todo.entity';
+import { ProjectEntity } from '../project/project.entity';
 
 @Injectable()
 export class TodoService {
   constructor(
-    @InjectRepository(Todo)
-    private todoRepository: Repository<Todo>,
+    @InjectRepository(TodoEntity)
+    private todoRepository: Repository<TodoEntity>,
+    @InjectRepository(ProjectEntity)
+    private projectRepository: Repository<ProjectEntity>,
   ) {}
 
   async findAll(): Promise<any[]> {
@@ -22,9 +25,30 @@ export class TodoService {
     return todo;
   }
 
-  async create(createTodoDto: any): Promise<any> {
-    const todo = this.todoRepository.create(createTodoDto);
-    return await this.todoRepository.save(todo);
+  // async create(createTodoDto: any): Promise<any> {
+  //   const todo = this.todoRepository.create(createTodoDto);
+  //   return await this.todoRepository.save(todo);
+  // }
+
+  async create(projectId: number, data: { name: string }): Promise<any> {
+    // Проверяем существует ли проект
+
+    const project = await this.projectRepository.findOne({
+      where: { id: projectId },
+    });
+    console.log(project, data, 3333);
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${projectId} not found`);
+    }
+
+    // Создаем новый case-year и связываем с проектом
+    const todo = this.todoRepository.create({
+      name: data.name,
+      project: project, // связываем с проектом
+      isDeleted: false,
+    });
+
+    return this.todoRepository.save(todo);
   }
 
   async update(id: number, updateTodoDto: any): Promise<any> {

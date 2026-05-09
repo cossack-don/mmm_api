@@ -12,37 +12,41 @@ import {
   Res,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
-import { Todo } from './todo.entity';
+import { TodoEntity } from './todo.entity';
+import { CaseYearEntity } from '../case-year/case-year.entity';
 
-@Controller('todos')
+@Controller('project/:projectId/todos')
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
   @Get()
-  async findAll(): Promise<Todo[]> {
+  async findAll(): Promise<TodoEntity[]> {
     return this.todoService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Todo> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<TodoEntity> {
     return this.todoService.findOne(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() body: any): Promise<any> {
+  async create(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() body: { name: string },
+  ): Promise<CaseYearEntity> {
     if (!body.name) {
       throw new Error('Поле name обязательно');
     }
 
-    return this.todoService.create(body);
+    return this.todoService.create(projectId, body);
   }
 
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTodoDto: any,
-  ): Promise<Todo> {
+  ): Promise<TodoEntity> {
     return this.todoService.update(id, updateTodoDto);
   }
 
