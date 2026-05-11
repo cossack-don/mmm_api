@@ -13,8 +13,29 @@ export class TodoService {
     private projectRepository: Repository<ProjectEntity>,
   ) {}
 
-  async findAll(): Promise<any[]> {
-    return await this.todoRepository.find();
+  async findAll(
+    projectId: number,
+    limit: number,
+    offset: number,
+  ): Promise<{
+    data: TodoEntity[];
+    total: number;
+    limit: number;
+    offset: number;
+  }> {
+    const [data, total] = await this.todoRepository.findAndCount({
+      take: limit,
+      skip: offset,
+      order: { id: 'ASC' },
+    });
+
+    // return await this.todoRepository.find();
+    return {
+      data,
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findOne(id: number): Promise<any> {

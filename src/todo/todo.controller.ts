@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   Res,
+  Query,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { TodoEntity } from './todo.entity';
@@ -20,10 +21,21 @@ export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
   @Get()
-  async findAll(): Promise<TodoEntity[]> {
-    return this.todoService.findAll();
-  }
+  async findAll(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ): Promise<{
+    data: TodoEntity[];
+    total: number;
+    limit: number;
+    offset: number;
+  }> {
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    const offsetNum = offset ? parseInt(offset, 10) : 0;
 
+    return this.todoService.findAll(projectId, limitNum, offsetNum);
+  }
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<TodoEntity> {
     return this.todoService.findOne(id);
