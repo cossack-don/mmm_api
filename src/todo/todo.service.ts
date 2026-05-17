@@ -23,13 +23,14 @@ export class TodoService {
     limit: number;
     offset: number;
   }> {
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
+
     const [data, total] = await this.todoRepository.findAndCount({
       take: limit,
       skip: offset,
       order: { id: 'ASC' },
     });
 
-    // return await this.todoRepository.find();
     return {
       data,
       total,
@@ -57,7 +58,7 @@ export class TodoService {
     const project = await this.projectRepository.findOne({
       where: { id: projectId },
     });
-    console.log(project, data, 3333);
+
     if (!project) {
       throw new NotFoundException(`Project with ID ${projectId} not found`);
     }

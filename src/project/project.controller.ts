@@ -10,22 +10,34 @@ import {
   HttpCode,
   HttpStatus,
   Res,
+  Query,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ProjectEntity } from './project.entity';
 
 @Controller('project')
 export class ProjectController {
-  constructor(private readonly todoService: ProjectService) {}
+  constructor(private readonly projectService: ProjectService) {}
 
   @Get()
-  async findAll(): Promise<ProjectEntity[]> {
-    return this.todoService.findAll();
+  async findAll(
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ): Promise<{
+    data: ProjectEntity[];
+    total: number;
+    limit: number;
+    offset: number;
+  }> {
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    const offsetNum = offset ? parseInt(offset, 10) : 0;
+
+    return this.projectService.findAll(limitNum, offsetNum);
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<ProjectEntity> {
-    return this.todoService.findOne(id);
+    return this.projectService.findOne(id);
   }
 
   @Post()
@@ -35,7 +47,7 @@ export class ProjectController {
       throw new Error('Поле name обязательно');
     }
 
-    return this.todoService.create(body);
+    return this.projectService.create(body);
   }
 
   @Put(':id')
@@ -43,7 +55,7 @@ export class ProjectController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTodoDto: any,
   ): Promise<ProjectEntity> {
-    return this.todoService.update(id, updateTodoDto);
+    return this.projectService.update(id, updateTodoDto);
   }
 
   @Delete(':id')
@@ -52,7 +64,7 @@ export class ProjectController {
     @Param('id', ParseIntPipe) id: number,
     @Res() response: Response,
   ): Promise<any> {
-    await this.todoService.remove(id);
+    await this.projectService.remove(id);
 
     // @ts-ignore
     return response.status(HttpStatus.OK).json({
