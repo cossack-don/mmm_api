@@ -54,7 +54,7 @@ export class CaseYearController {
   async update(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: { name?: string },
+    @Body() updateDto: { name?: string; keyQ: string; month: number },
   ): Promise<CaseYearEntity> {
     return this.caseYearService.update(projectId, id, updateDto);
   }

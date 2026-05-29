@@ -81,14 +81,16 @@ export class CaseYearService {
   async update(
     projectId: number,
     id: number,
-    updateDto: { name?: string },
+    updateDto: { name?: string; keyQ: string; month: number },
   ): Promise<CaseYearEntity> {
     // Находим case-year
     const caseYear = await this.findOneByProject(projectId, id);
 
     // Обновляем поля
-    if (updateDto.name) {
+    if (updateDto.name && updateDto.keyQ && updateDto.month) {
       caseYear.name = updateDto.name;
+      caseYear.keyQ = updateDto.keyQ;
+      caseYear.month = updateDto.month;
     }
 
     return this.caseYearRepository.save(caseYear);

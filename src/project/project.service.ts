@@ -8,7 +8,7 @@ export class ProjectService {
   constructor(
     @InjectRepository(ProjectEntity)
     private projectRepository: Repository<ProjectEntity>,
-  ) {}
+  ) { }
 
   async findAll(
     limit: number,
