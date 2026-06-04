@@ -23,6 +23,9 @@ export class ProjectController {
   async findAll(
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string, // поле для сортировки
+    @Query('sortOrder') sortOrder?: string // ASC или DESC
   ): Promise<{
     data: ProjectEntity[];
     total: number;
@@ -31,8 +34,16 @@ export class ProjectController {
   }> {
     const limitNum = limit ? parseInt(limit, 10) : 10;
     const offsetNum = offset ? parseInt(offset, 10) : 0;
+    const sortByField = sortBy || 'id'; // поле по умолчанию
+    const sortOrderValue = sortOrder?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
-    return this.projectService.findAll(limitNum, offsetNum);
+    return this.projectService.findAll(
+      limitNum,
+      offsetNum,
+      search,
+      sortByField,
+      sortOrderValue
+    );
   }
 
   @Get(':id')
@@ -53,7 +64,7 @@ export class ProjectController {
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateTodoDto: any,
+    @Body() updateTodoDto: any
   ): Promise<ProjectEntity> {
     return this.projectService.update(id, updateTodoDto);
   }
@@ -62,7 +73,7 @@ export class ProjectController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param('id', ParseIntPipe) id: number,
-    @Res() response: Response,
+    @Res() response: Response
   ): Promise<any> {
     await this.projectService.remove(id);
 

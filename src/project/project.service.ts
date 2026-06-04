@@ -1,18 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { ProjectEntity } from './project.entity';
 
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectRepository(ProjectEntity)
-    private projectRepository: Repository<ProjectEntity>,
-  ) { }
+    private projectRepository: Repository<ProjectEntity>
+  ) {}
 
   async findAll(
     limit: number,
     offset: number,
+    search?: string,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC'
   ): Promise<{
     data: ProjectEntity[];
     total: number;
@@ -21,10 +24,18 @@ export class ProjectService {
   }> {
     // await new Promise((resolve) => setTimeout(resolve, 3000));
 
+    const allowedSortFields = ['id', 'name'];
+    const sortField =
+      sortBy && allowedSortFields.includes(sortBy) ? sortBy : 'id';
+    const sortDirection = sortOrder === 'DESC' ? 'DESC' : 'ASC';
+
     const [data, total] = await this.projectRepository.findAndCount({
+      where: search ? [{ name: Like(`%${search.toLowerCase()}%`) }] : undefined,
       take: limit,
       skip: offset,
-      order: { id: 'ASC' },
+      order: {
+        [sortField]: sortDirection,
+      },
     });
 
     return {
